@@ -1,7 +1,7 @@
 {
   "expo": {
-    "name": "RunMate",
-    "slug": "RunMate",
+    "name": "SurfMate",
+    "slug": "SurfMate",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
