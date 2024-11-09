@@ -6,10 +6,11 @@ export const authService = {
     password: string;
     password_confirmation: string;
   }) {
-    return await apiClient.post("/api/users/sign_up", { user: userData });
+    console.log("Dans le service signUp");
+    return await apiClient.post("/users/sign_up", { user: userData });
   },
 
   async login(credentials: { email: string; password: string }) {
-    return await apiClient.post("/api/users/log_in", { user: credentials });
+    return await apiClient.post("/users/log_in", { user: credentials });
   },
 };

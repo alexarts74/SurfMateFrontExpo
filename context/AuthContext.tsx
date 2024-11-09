@@ -1,12 +1,16 @@
-import React, { createContext, useContext, useState } from 'react';
-import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import React, { createContext, useContext, useState } from "react";
+import { router } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import User from "@/services/user/UserType";
+import { authService } from "@/services/api/auth";
+
 
 type AuthContextType = {
   isAuthenticated: boolean;
-  user: any | null;
-  login: (email: string, password: string) => Promise<void>;
+  user: User | null;
+  login: (userData: any) => Promise<void>;
   logout: () => Promise<void>;
+  isLoading: boolean;
   signUp: (userData: any) => Promise<void>;
 };
 
@@ -14,92 +18,62 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [user, setUser] = useState(null);
-  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   const signUp = async (userData: any) => {
     try {
-      const response = await fetch(
-        "http://172.20.10.9:3000/api/users/sign_up",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ user: userData }),
-      });
-
-      const data = await response.json();
-
-      if (data.authentication_token) {
-        // Stockage du token Devise
-        await AsyncStorage.setItem("authToken", data.authentication_token);
-        setUser(data.user);
-        setIsAuthenticated(true);
-        router.replace("/(tabs)");
-      } else {
-        throw new Error(data.errors?.join(", ") || "Erreur d'inscription");
-      }
+      setIsLoading(true);
+      await authService.signUp(userData);
     } catch (error) {
-      console.error("Erreur d'inscription:", error);
+      console.error("Erreur lors de la création de compte:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const login = async (email: string, password: string) => {
+  const login = async (userData: any) => {
     try {
-      const response = await fetch('http://172.20.10.9:3000/api/users/log_in', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          user: { email, password }
-        }),
-      });
-
-      const data = await response.json();
-
-      if (data.authentication_token) {
-        await AsyncStorage.setItem("authToken", data.authentication_token);
-        setUser(data.user);
-        setIsAuthenticated(true);
-        router.replace("/(tabs)");
-      } else {
-        throw new Error("Identifiants invalides");
-      }
+      setIsLoading(true);
+      await AsyncStorage.setItem("authToken", userData.authentication_token);
+      await AsyncStorage.setItem("userData", JSON.stringify(userData.user));
+      setUser(userData.user);
+      setIsAuthenticated(true);
+      router.replace("/(tabs)");
     } catch (error) {
-      console.error("Erreur de connexion:", error);
+      console.error("Erreur lors de la sauvegarde des données:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   const logout = async () => {
     try {
-      const token = await AsyncStorage.getItem("authToken");
-
-      // Appel à votre endpoint de déconnexion
-      await fetch("http://172.20.10.9:3000/api/users/log_out", {
-        method: "DELETE",
-        headers: {
-          Authorization: `Bearer ${token}`,
-          "Content-Type": "application/json",
-        },
-      });
-
-      await AsyncStorage.removeItem('authToken');
+      setIsLoading(true);
+      await AsyncStorage.multiRemove(["authToken", "userData"]);
       setUser(null);
       setIsAuthenticated(false);
-      router.replace("/(auth)");
+      router.replace("/(auth)/login");
     } catch (error) {
-      console.error("Erreur de déconnexion:", error);
+      console.error("Erreur lors de la déconnexion:", error);
       throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <AuthContext.Provider
-      value={{ isAuthenticated, user, login, logout, signUp }}
+      value={{
+        isAuthenticated,
+        user,
+        login,
+        logout,
+        signUp,
+        isLoading,
+      }}
     >
       {children}
     </AuthContext.Provider>

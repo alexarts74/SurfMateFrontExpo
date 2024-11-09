@@ -2,13 +2,14 @@ import React, { useState } from "react";
 import { View, TextInput, Pressable, Text, StyleSheet } from "react-native";
 import { authService } from "@/services/api/auth";
 
-export default function LoginScreen() {
+export default function LoginForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [message, setMessage] = useState("");
 
   const handleLogin = async () => {
+    console.log("je suis dans cette fonction de login")
     try {
       setError("");
       setMessage("");
