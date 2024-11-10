@@ -74,7 +74,6 @@ class ApiClient {
   async get(endpoint: string) {
     const headers = await this.getHeaders();
     const url = `${this.baseUrl}${endpoint}`;
-    console.log("url dans le client get", url);
     const response = await this.fetchWithTimeout(url, { headers });
     const responseData = await response.json();
 

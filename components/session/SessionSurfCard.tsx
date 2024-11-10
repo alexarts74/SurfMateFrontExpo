@@ -1,19 +1,27 @@
 import { View, Text, Image, Pressable } from "react-native";
 import React from "react";
 import Session from "@/interfaces/SurfSession";
+import { useRouter } from "expo-router";
 
 interface SessionCardDetailProps {
   session: Session;
   onPress?: () => void;
 }
 
-export default function SessionSurfCard({
-  session,
-  onPress,
-}: SessionCardDetailProps) {
+export default function SessionSurfCard({ session }: SessionCardDetailProps) {
+
+  const router = useRouter()
+
+  const handlePress = () => {
+    router.push({
+      pathname: "/(modals)/session/[id]",
+      params: { id: session.id },
+    });
+  };
+
   return (
     <Pressable
-      onPress={onPress}
+      onPress={handlePress}
       className="bg-white rounded-2xl p-5 shadow-lg mb-4 border border-gray-100"
     >
       {/* En-tête avec titre et statut */}
@@ -99,6 +107,24 @@ export default function SessionSurfCard({
         <Text className="text-gray-600 text-sm">
           📍 RDV: {session.meeting_point}
         </Text>
+      </View>
+
+      {/* Informations sur l'organisateur */}
+      <View className="flex-row items-center mt-4 pt-4 border-t border-gray-100">
+        <View className="flex-row items-center">
+          <Image
+            source={{
+              uri: session.user?.image || "https://via.placeholder.com/40" // Image par défaut si pas d'image
+            }}
+            className="w-10 h-10 rounded-full"
+          />
+          <View className="ml-3">
+            <Text className="text-gray-800 font-medium">
+              {session.user?.name || "Utilisateur"}
+            </Text>
+            <Text className="text-gray-500 text-sm">Organisateur</Text>
+          </View>
+        </View>
       </View>
     </Pressable>
   );

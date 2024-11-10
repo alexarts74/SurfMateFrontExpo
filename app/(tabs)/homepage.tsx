@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { sessionService } from "@/services/api/SurfingSession";
 import Session from "@/interfaces/SurfSession";
-import SessionSurfCard from "@/components/homepage/SessionSurfCard";
+import SessionSurfCard from "@/components/session/SessionSurfCard";
 
 export default function SessionsScreen() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -41,7 +41,7 @@ export default function SessionsScreen() {
         <View className="px-4 py-6">
           <View className="flex-row justify-between items-center mb-6">
             <Text className="text-3xl font-bold text-gray-800">
-              Mes Sessions
+              Sessions
             </Text>
             <View className="bg-blue-500 rounded-full p-2">
               {/* Vous pouvez ajouter un icône ici */}
@@ -65,7 +65,6 @@ export default function SessionsScreen() {
                   key={session.id}
                   session={session}
                   onPress={() => {
-                    // Navigation vers les détails de la session
                     console.log("Session sélectionnée:", session.id);
                   }}
                 />
