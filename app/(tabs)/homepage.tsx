@@ -1,15 +1,9 @@
-import {
-  View,
-  Text,
-  ScrollView,
-  Image,
-  Pressable,
-  ActivityIndicator,
-} from "react-native";
+import { View, ScrollView, ActivityIndicator, Text } from "react-native";
 import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { sessionService } from "@/services/api/SurfingSession";
 import Session from "@/interfaces/SurfSession";
+import SessionSurfCard from "@/components/homepage/SessionSurfCard";
 
 export default function SessionsScreen() {
   const [sessions, setSessions] = useState<Session[]>([]);
@@ -19,12 +13,12 @@ export default function SessionsScreen() {
   const fetchSessions = async () => {
     try {
       const data = await sessionService.getAllSessions();
-      console.log("data dans le fetchSessions", data);
       setSessions(data);
       setLoading(false);
     } catch (error) {
       console.error("Erreur lors de la récupération des sessions:", error);
       setError("Impossible de charger les sessions");
+      setLoading(false);
     }
   };
 
@@ -32,63 +26,51 @@ export default function SessionsScreen() {
     fetchSessions();
   }, []);
 
-  console.log("session dans le renderSession", sessions)
-  const renderSession = (session: Session) => (
-    <Pressable
-      key={session.id}
-      className="bg-white rounded-xl p-4 shadow-sm border border-gray-100"
-    >
-      <View className="flex-row items-center mb-3">
-        <Image
-          source={{
-            uri: session.image || "https://via.placeholder.com/40",
-          }}
-          className="w-10 h-10 rounded-full mr-3"
-        />
-        <View>
-          <Text className="font-semibold">{session.title}</Text>
-          <Text className="text-gray-500 text-sm">
-            {new Date(session.date).toLocaleDateString("fr-FR")}
-          </Text>
-        </View>
-      </View>
-
-      <Text className="font-bold text-lg mb-2">{session.title}</Text>
-      <Text className="text-gray-600 mb-3">{session.description}</Text>
-
-      <View className="flex-row justify-between">
-        <View className="bg-blue-100 px-3 py-1 rounded-full">
-          <Text className="text-blue-800 text-sm">{session.spot}</Text>
-        </View>
-        <View className="bg-green-100 px-3 py-1 rounded-full">
-          <Text className="text-green-800 text-sm">{session.level}</Text>
-        </View>
-      </View>
-    </Pressable>
-  );
-
   if (loading) {
     return (
-      <View className="flex-1 justify-center items-center bg-white">
+      <View className="flex-1 justify-center items-center bg-gray-50">
         <ActivityIndicator size="large" color="#3B82F6" />
+        <Text className="text-gray-600 mt-4">Chargement des sessions...</Text>
       </View>
     );
   }
 
   return (
-    <SafeAreaView className="flex-1 bg-white">
+    <SafeAreaView className="flex-1 bg-gray-50">
       <ScrollView className="flex-1">
         <View className="px-4 py-6">
-          <Text className="text-2xl font-bold mb-6">Mes Sessions de Surf</Text>
+          <View className="flex-row justify-between items-center mb-6">
+            <Text className="text-3xl font-bold text-gray-800">
+              Mes Sessions
+            </Text>
+            <View className="bg-blue-500 rounded-full p-2">
+              {/* Vous pouvez ajouter un icône ici */}
+            </View>
+          </View>
 
           {error ? (
-            <Text className="text-red-500 text-center">{error}</Text>
+            <View className="bg-red-100 p-4 rounded-xl">
+              <Text className="text-red-600 text-center">{error}</Text>
+            </View>
           ) : sessions.length === 0 ? (
-            <Text className="text-gray-600 text-center">
-              Aucune session pour le moment.
-            </Text>
+            <View className="bg-gray-100 p-8 rounded-xl">
+              <Text className="text-gray-600 text-center text-lg">
+                Aucune session pour le moment.
+              </Text>
+            </View>
           ) : (
-            <View className="space-y-4">{sessions.map(renderSession)}</View>
+            <View>
+              {sessions.map((session) => (
+                <SessionSurfCard
+                  key={session.id}
+                  session={session}
+                  onPress={() => {
+                    // Navigation vers les détails de la session
+                    console.log("Session sélectionnée:", session.id);
+                  }}
+                />
+              ))}
+            </View>
           )}
         </View>
       </ScrollView>
