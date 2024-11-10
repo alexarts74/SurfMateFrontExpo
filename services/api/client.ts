@@ -33,8 +33,8 @@ class ApiClient {
       }
 
       return response;
-    } catch (error) {
-      if (error.name === "AbortError") {
+    } catch (error: unknown) {
+      if (error instanceof Error && error.name === "AbortError") {
         console.error(`Timeout - L'API n'a pas répondu à ${url}`);
         throw new Error(
           `La requête a expiré après ${this.timeout / 1000} secondes`
@@ -55,22 +55,34 @@ class ApiClient {
         body: JSON.stringify(data),
       });
 
-      console.log("data dans le client post", data);
       const responseData = await response.json();
-      console.log("Réponse reçue:", JSON.stringify(responseData, null, 2));
 
       if (!response.ok) {
         throw new Error(responseData.message || "Une erreur est survenue");
       }
 
       return responseData;
-    } catch (error) {
+    } catch (error: any) {
       console.error("Erreur détaillée:", {
         message: error.message,
         stack: error.stack,
       });
       throw error;
     }
+  }
+
+  async get(endpoint: string) {
+    const headers = await this.getHeaders();
+    const url = `${this.baseUrl}${endpoint}`;
+    console.log("url dans le client get", url);
+    const response = await this.fetchWithTimeout(url, { headers });
+    const responseData = await response.json();
+
+    if (!response.ok) {
+      throw new Error(responseData.message || "Une erreur est survenue");
+    }
+
+    return responseData;
   }
 }
 

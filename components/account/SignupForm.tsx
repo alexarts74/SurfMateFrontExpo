@@ -62,13 +62,12 @@ export default function SignUpScreen() {
   };
 
   const handleSignUp = async () => {
-    console.log("Dans le handleSignUp du composant SignupForm");
     try {
       setError("");
       setLoading(true);
       const response = await authService.signUp(formData);
       await login(response);
-      router.replace("/(tabs)");
+      router.replace("/(tabs)/homepage");
     } catch (err) {
       console.error("Erreur inscription:", err);
       setError("Erreur lors de l'inscription. Veuillez réessayer.");
@@ -78,75 +77,83 @@ export default function SignUpScreen() {
   };
 
   return (
-    <ScrollView className="flex-1 bg-white p-5">
-      <Text className="text-2xl font-bold mb-5 text-center">Inscription</Text>
+    <ScrollView className="flex-1 bg-white px-5 py-6">
+      <Text className="text-2xl font-bold mb-6 text-center">Inscription</Text>
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white"
         placeholder="Nom"
         value={formData.name}
         onChangeText={(value) => handleChange("name", value)}
       />
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white"
         placeholder="Âge"
         value={formData.age}
         onChangeText={(value) => handleChange("age", value)}
         keyboardType="numeric"
       />
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white h-24"
         placeholder="Bio"
         value={formData.bio}
         onChangeText={(value) => handleChange("bio", value)}
         multiline
         numberOfLines={3}
       />
+
       <SelectList
         setSelected={(val: string) => handleChange("level", val)}
         data={levelOptions}
         save="key"
         placeholder="Sélectionnez votre niveau"
         boxStyles={{
-          width: "100%",
           borderWidth: 1,
-          borderColor: "#d1d5db",
+          borderColor: '#e5e7eb',
           borderRadius: 8,
           padding: 16,
-          marginBottom: 4,
+          marginBottom: 16,
+          backgroundColor: 'white',
         }}
         dropdownStyles={{
           borderWidth: 1,
-          borderColor: "#d1d5db",
+          borderColor: '#e5e7eb',
           borderRadius: 8,
-          marginTop: 4,
+          backgroundColor: 'white',
         }}
         search={false}
       />
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4 mt-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white"
         placeholder="Email"
         value={formData.email}
         onChangeText={(value) => handleChange("email", value)}
         keyboardType="email-address"
         autoCapitalize="none"
       />
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white"
         placeholder="Mot de passe"
         value={formData.password}
         onChangeText={(value) => handleChange("password", value)}
         secureTextEntry
       />
+
       <TextInput
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4"
+        className="w-full border border-gray-300 rounded-lg p-4 mb-4 bg-white"
         placeholder="Confirmation du mot de passe"
         value={formData.password_confirmation}
         onChangeText={(value) => handleChange("password_confirmation", value)}
         secureTextEntry
       />
+
       <Pressable
         onPress={pickImage}
-        className="w-full border border-gray-300 rounded-lg p-4 mb-4 flex-row items-center justify-center"
+        className="w-full border border-gray-300 rounded-full p-4 mb-4 items-center justify-center bg-white"
       >
         {formData.image ? (
           <View className="items-center">
@@ -162,26 +169,25 @@ export default function SignUpScreen() {
           </Text>
         )}
       </Pressable>
+
       {error ? (
         <Text className="text-red-500 text-center mb-4">{error}</Text>
       ) : null}
-      <Pressable
-        className={`w-full bg-blue-500 rounded-lg p-4 items-center ${
-          loading ? "opacity-70" : ""
-        }`}
-        onPress={handleSignUp}
-        disabled={loading}
-      >
-        {loading ? (
-          <ActivityIndicator color="white" />
-        ) : (
-          <Text className="text-white font-semibold text-lg">S'inscrire</Text>
-        )}
-      </Pressable>
-      <View className="flex-row justify-center mt-5">
-        <Text>Déjà un compte ? </Text>
-        <Pressable onPress={() => router.push("/login")}>
-          <Text className="text-blue-500 underline">Se connecter</Text>
+
+      <View className="space-y-3 px-8 mb-4">
+        <Pressable
+          className={`bg-blue-500 py-3 rounded-full items-center
+            ${loading ? "opacity-70" : ""}`}
+          onPress={handleSignUp}
+          disabled={loading}
+        >
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text className="text-sm font-semibold text-white">
+              S'inscrire
+            </Text>
+          )}
         </Pressable>
       </View>
     </ScrollView>

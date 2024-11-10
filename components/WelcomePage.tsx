@@ -1,85 +1,101 @@
-import React from "react";
-import { View, Text, StyleSheet, Pressable, Image } from "react-native";
+import React, { useEffect, useRef } from "react";
+import { View, Text, Pressable, Animated, ActivityIndicator } from "react-native";
 import { router } from "expo-router";
 
 export default function WelcomePage() {
+  const titleScale = useRef(new Animated.Value(1)).current;
+  const titlePosition = useRef(new Animated.Value(0)).current;
+  const contentOpacity = useRef(new Animated.Value(0)).current;
+  const loaderOpacity = useRef(new Animated.Value(1)).current;
+
+  useEffect(() => {
+    setTimeout(() => {
+      Animated.timing(loaderOpacity, {
+        toValue: 0,
+        duration: 500,
+        useNativeDriver: true,
+      }).start();
+
+      Animated.parallel([
+        Animated.timing(titleScale, {
+          toValue: 0.8,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(titlePosition, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+        Animated.timing(contentOpacity, {
+          toValue: 1,
+          duration: 800,
+          useNativeDriver: true,
+        }),
+      ]).start();
+    }, 3000);
+  }, []);
+
+  const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
+
   return (
-    <View style={styles.container}>
-      <View style={styles.header}>
-        <Text style={styles.title}>SurfMate</Text>
-        <Text style={styles.subtitle}>
+    <View className="flex-1 bg-white p-6 justify-between">
+      <Animated.View
+        className="flex-1 justify-center items-center"
+        style={{
+          transform: [
+            { scale: titleScale },
+            {
+              translateY: titlePosition.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0, -200],
+              }),
+            },
+          ],
+        }}
+      >
+        <Text className="text-5xl font-bold text-blue-500 mb-2.5">
+          SurfMate
+        </Text>
+        <Text className="text-lg text-gray-600 text-center px-5">
           Trouvez votre partenaire de surf idéal
         </Text>
-      </View>
+      </Animated.View>
 
-      <View style={styles.buttonContainer}>
-        <Pressable
-          style={[styles.button, styles.loginButton]}
+      <Animated.View
+        className="absolute left-0 right-0 bottom-32 items-center"
+        style={{ opacity: loaderOpacity }}
+      >
+        <ActivityIndicator size="large" color="#3B82F6" />
+        <Text className="text-blue-500 mt-4 text-base">
+          Chargement...
+        </Text>
+      </Animated.View>
+
+      <Animated.View
+        className="space-y-3 mb-12 px-8"
+        style={{
+          opacity: contentOpacity,
+        }}
+      >
+        <AnimatedPressable
+          className="bg-blue-500 py-3 rounded-full items-center"
           onPress={() => router.push("/(auth)/login")}
         >
-          <Text style={styles.buttonText}>Se connecter</Text>
-        </Pressable>
+          <Text className="text-sm font-semibold text-white">
+            Se connecter
+          </Text>
+        </AnimatedPressable>
 
-        <Pressable
-          style={[styles.button, styles.signupButton]}
+        <AnimatedPressable
+          className="bg-white py-3 rounded-full items-center border border-blue-500"
           onPress={() => router.push("/(auth)/signup")}
         >
-          <Text style={[styles.buttonText, styles.signupButtonText]}>
+          <Text className="text-sm font-semibold text-blue-500">
             Créer un compte
           </Text>
-        </Pressable>
-      </View>
+        </AnimatedPressable>
+      </Animated.View>
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: "#fff",
-    padding: 20,
-    justifyContent: "space-between",
-  },
-  header: {
-    flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-  },
-  title: {
-    fontSize: 42,
-    fontWeight: "bold",
-    color: "#007AFF",
-    marginBottom: 10,
-  },
-  subtitle: {
-    fontSize: 18,
-    color: "#666",
-    textAlign: "center",
-    paddingHorizontal: 20,
-  },
-  buttonContainer: {
-    gap: 15,
-    marginBottom: 50,
-  },
-  button: {
-    padding: 16,
-    borderRadius: 8,
-    alignItems: "center",
-  },
-  loginButton: {
-    backgroundColor: "#007AFF",
-  },
-  signupButton: {
-    backgroundColor: "#fff",
-    borderWidth: 2,
-    borderColor: "#007AFF",
-  },
-  buttonText: {
-    fontSize: 16,
-    fontWeight: "600",
-    color: "#fff",
-  },
-  signupButtonText: {
-    color: "#007AFF",
-  },
-});
